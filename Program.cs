@@ -13,36 +13,83 @@ namespace PolynomialExpressionResolver
         static double[] xAxisPolynomial = { 13, 14, 15 };
         static double[] yAxisPolynomial = { 5.63, 6, 5.63 };
 
-
         static double[] xAxisPolynomial2ndGrade = { 0, 1, 2, 3, 4, 5, 6, 7 };
         static double[] yAxisPolynomial2ndGrade = { 110, 110, 96, 93, 88, 71, 70, 49 };
 
+        static double[] xAxisTest = { -1, 0, 1, 2, 3, 5, 7, 9 };
+        static double[] yAxisTest = { -1, 3, 2.5, 5, 4, 2, 5, 4 };
+
         static void Main(string[] args)
         {
-            double[] xAxis = xAxisPolynomial;
-            double[] yAxis = yAxisPolynomial;
-
-            var poly = FindPolynomialExpression(xAxis, yAxis, tolerance: 1e-7);
-            if (poly != null)
+            for(; ; )
             {
-                Console.WriteLine("Polynomial fit found:");
-                Console.WriteLine(poly.Replace(",", "."));
-            }
-            else
-            {
-                var matches = FindExpressions(xAxis, yAxis, maxDepth: 3, minConst: -20, maxConst: 20, tolerance: 1e-7);
+                Console.WriteLine("Enter x-axis values separated by commas, semicolons or spaces:");
+                double[] xAxis = ReadArrayFromConsole("x-axis> ");
 
-                if (matches.Count == 0)
+                Console.WriteLine("Enter y-axis values separated by commas, semicolons or spaces:");
+                double[] yAxis = ReadArrayFromConsole("y-axis> ");
+
+                if (xAxis.Length != yAxis.Length)
                 {
-                    Console.WriteLine("No matching expression found.");
+                    Console.WriteLine("x and y arrays must have the same length.");
+
+                    Console.WriteLine("\nPress enter to restart");
+                    Console.ReadLine();
+                    Console.Clear();
+                    continue;
+                }
+
+                var poly = FindPolynomialExpression(xAxis, yAxis, tolerance: 1e-7);
+                if (poly != null)
+                {
+                    Console.WriteLine("Polynomial fit found:");
+                    Console.WriteLine(poly.Replace(",", "."));
                 }
                 else
                 {
-                    Console.WriteLine("Found expressions:");
-                    foreach (var m in matches.Take(20))
-                        Console.WriteLine(m.Replace(",", "."));
+                    var matches = FindExpressions(xAxis, yAxis, maxDepth: 3, minConst: -20, maxConst: 20, tolerance: 1e-7);
+
+                    if (matches.Count == 0)
+                    {
+                        Console.WriteLine("No matching expression found.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Found expressions:");
+                        foreach (var m in matches.Take(20))
+                            Console.WriteLine(m.Replace(",", "."));
+                    }
+                }
+
+                Console.WriteLine("\nPress enter to restart");
+                Console.ReadLine();
+                Console.Clear();
+            }
+        }
+
+        static double[] ReadArrayFromConsole(string prompt)
+        {
+            Console.Write(prompt);
+            var line = Console.ReadLine();
+
+            var parts = line.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var list = new List<double>();
+            foreach (var p in parts)
+            {
+                var token = p.Trim();
+                if (token.Length == 0) continue;
+                if (double.TryParse(token, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var v) ||
+                    double.TryParse(token, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.CurrentCulture, out v))
+                {
+                    list.Add(v);
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: could not parse '{token}', ignoring.");
                 }
             }
+
+            return list.ToArray();
         }
 
         static string? FindPolynomialExpression(double[] x, double[] y, double tolerance)
