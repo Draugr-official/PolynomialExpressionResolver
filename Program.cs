@@ -47,7 +47,7 @@ namespace PolynomialExpressionResolver
                 }
                 else
                 {
-                    var matches = FindExpressions(xAxis, yAxis, maxDepth: 3, minConst: -20, maxConst: 20, tolerance: 1e-7);
+                    var matches = FindExpressions(xAxis, yAxis, maxDepth: 5, minConst: -20, maxConst: 20, tolerance: 1e-7);
 
                     if (matches.Count == 0)
                     {
